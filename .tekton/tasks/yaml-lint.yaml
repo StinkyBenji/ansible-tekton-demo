@@ -1,0 +1,53 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: yaml-lint
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/categories: Code Quality
+    tekton.dev/tags: linter
+    tekton.dev/displayName: "YAML linter"
+spec:
+  description: This task can be used to perform lint check on YAML files
+  workspaces:
+    - name: source
+      description: A workspace that contains the fetched git repository.
+  params:
+    - name: extra-args
+      type: string
+      description: extra args needs to append
+      default: "--help"
+    - name: context-directory
+      type: string
+      description: "Context directory within the source repository in which we want to execute yaml lint."
+      default: "."
+    - name: image
+      description: image to use to execute this task
+      type: string
+      default: "docker.io/cytopia/yamllint:1.23"
+    - name: verbose
+      description: If true it will output the commands being executed in the script.
+      type: string
+      default: "false"
+  steps:
+    - name: lint-yaml-files
+      image: $(params.image)
+      env:
+        - name: HOME
+          value: /tekton/home
+      resources: {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      workingDir: $(workspaces.source.path)/$(params.context-directory)
+      script: |
+        #!/usr/bin/env sh
+        set -e
+
+        if [ "$(params.verbose)" = "true" ] ; then
+          set -x
+        fi
+
+        yamllint $(params.extra-args)

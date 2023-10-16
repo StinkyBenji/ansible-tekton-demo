@@ -1,0 +1,14 @@
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: ansible-tekton-demo-repo
+  namespace: ansible-tekton-demo
+spec:
+  url: "https://github.com/StinkyBenji/ansible-tekton-demo"
+  git_provider:
+    secret:
+      name: "github-webhook-config"
+      key: "provider.token"
+    webhook_secret:
+      name: "github-webhook-config"
+      key: "webhook.secret"
