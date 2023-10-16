@@ -1,0 +1,49 @@
+fail_fast: true
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-symlinks
+      - id: detect-private-key
+      - id: check-yaml
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
+      - id: gitleaks-docker
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.16
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-mkdocs
+          - mdformat-admon
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.33.0
+    hooks:
+      - id: markdownlint-fix
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        files: \.(js|ts|jsx|tsx|css|less|html|json|markdown|md|yaml|yml)$
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.23.0
+    hooks:
+      - id: yamllint
+        files: \.(yaml|yml)$
+        args: ["--format", "parsable", "--strict"]
+
+  - repo: https://github.com/ansible-community/ansible-lint.git
+    rev: v6.20.3
+    hooks:
+      - id: ansible-lint
+        files: \.(yaml|yml)$`

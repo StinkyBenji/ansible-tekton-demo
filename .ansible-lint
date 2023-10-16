@@ -1,0 +1,20 @@
+---
+profile: basic
+
+exclude_paths:
+  - .cache/
+  - .github/
+  - .tekton/
+  - .vscode/
+
+parseable: true
+
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+use_default_rules: true
+# Load custom rules from this specific folder
+# rulesdir:
+#   - ./rule/directory/
+
+# Offline mode disables installation of requirements.yml and schema refreshing
+offline: true

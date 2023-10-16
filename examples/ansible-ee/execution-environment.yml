@@ -1,0 +1,21 @@
+---
+version: 1
+
+build_arg_defaults:
+  EE_BASE_IMAGE: "registry.redhat.io/ansible-automation-platform-23/ee-minimal-rhel8"
+
+ansible_config: "ansible.cfg"
+
+dependencies:
+  galaxy: requirements.yml
+  python: requirements.txt
+  system: bindep.txt
+
+additional_build_steps:
+  prepend: |
+    RUN cat /etc/os-release
+    RUN curl https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.13.12/openshift-client-linux-4.13.12.tar.gz | tar -xz -C /bin/
+
+  append:
+    - RUN echo This is a post-install command!
+    - RUN ls -la /etc
