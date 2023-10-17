@@ -1,0 +1,5 @@
+resources:
+  - pipelines-unprivileged-sa.yaml
+  - pipelines-unprivileged-clusterrole.yaml
+  - pipelines-unprivileged-rb.yaml
+  - pipelines-unprivileged-scc.yaml
