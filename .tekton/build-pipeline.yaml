@@ -18,9 +18,6 @@ spec:
       value: "{{ repo_url }}"
     - name: revision
       value: "{{ revision }}"
-  taskRunSpecs:
-    - pipelineTaskName: build-image-tag
-      taskServiceAccountName: pipelines-sa-userid-1000
   pipelineSpec:
     params:
       - name: repo_url

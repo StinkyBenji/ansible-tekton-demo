@@ -107,11 +107,9 @@ spec:
         printf '%s' $(params.IMAGE) | tee $(results.IMAGE_URL.path)
       volumeMounts:
         - name: varlibcontainers
-          mountPath: /home/build/.local/share/containers
+          mountPath: /var/lib/containers
       securityContext:
-        runAsUser: 1000
-        runAsNonRoot: true
-        privileged: false
+        privileged: true
   volumes:
     - name: varlibcontainers
       emptyDir: {}
