@@ -25,9 +25,6 @@ spec:
     - name: IMAGE
       type: string
       description: Reference of the image buildah will produce.
-    - name: IMAGE_TAG
-      type: string
-      description: Tag of the image buildah will produce.
     - name: BUILDER_IMAGE
       type: string
       description: The location of the buildah builder image.

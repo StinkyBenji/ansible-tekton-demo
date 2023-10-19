@@ -95,8 +95,6 @@ spec:
         params:
           - name: TLSVERIFY
             value: "false"
-          - name: IMAGE_TAG
-            value: "test"
           - name: IMAGE
             value: "ansible-custom-ee:test"
           - name: CONTEXT
