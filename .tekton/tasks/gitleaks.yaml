@@ -69,8 +69,8 @@ spec:
       script: |
         #!/bin/bash
 
-        gitleaks --path="$(params.repo_path)" --config-path="$(params.config_file_path)"  \
-        --format="$(params.output_format)" --report="$(params.report_output_path)" "$@"
+        gitleaks -s "$(params.repo_path)" -c "$(params.config_file_path)"  \
+        -f "$(params.output_format)" -r "$(params.report_output_path)" "$@"
 
         EXIT_CODE="$?"
         if [ "$EXIT_CODE" -eq 0 ]
