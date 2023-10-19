@@ -1,5 +1,5 @@
 kubernetes>=12.0.0
 jsonpatch
 ansible-modules-hashivault==4.6.3
-ansible-lint==6.20.3
+ansible-lint==6.13.1
 yamllint==1.32.0

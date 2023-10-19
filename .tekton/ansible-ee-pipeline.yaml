@@ -7,11 +7,11 @@ metadata:
     pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[git-clone, buildah]"
+    pipelinesascode.tekton.dev/task: "[git-clone]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
-    pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
+    pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah-v2.yaml]"
     # pipelinesascode.tekton.dev/on-cel-expression: | event == "push" && target_branch == "main" && ("***/*.go".pathChanged() || "config/***".pathChanged()
 spec:
   params:
@@ -65,11 +65,11 @@ spec:
           - name: source
             workspace: source
 
-      - name: ansible-builder
+      - name: ansible-builder-create
         runAfter:
           - ansible-lint
         taskRef:
-          name: ansible-builder
+          name: ansible-builder-create
           kind: Task
         workspaces:
           - name: source
@@ -79,8 +79,6 @@ spec:
             value: Dockerfile
           - name: PATH
             value: "examples/ansible-ee"
-          - name: BUILD_CONTEXT
-            value: "."
 
       - name: build-image-tag
         taskRef:
@@ -91,7 +89,7 @@ spec:
           - name: dockerconfig
             workspace: registry-credentials
         runAfter:
-          - ansible-builder
+          - ansible-builder-create
         params:
           - name: TLSVERIFY
             value: "false"
