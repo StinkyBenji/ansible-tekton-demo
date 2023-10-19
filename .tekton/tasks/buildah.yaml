@@ -62,8 +62,6 @@ spec:
       default: "false"
   workspaces:
     - name: source
-    - name: sslcertdir
-      optional: true
     - name: dockerconfig
       description: >-
         An optional workspace that allows providing a .docker/config.json file
@@ -82,15 +80,9 @@ spec:
       script: |
         #!/bin/sh
 
-        # comment out as not using sslcert
-        #[ $(workspaces.sslcertdir.bound) = true ] && CERT_DIR_FLAG="--cert-dir=$(workspaces.sslcertdir.path)"
-
         [ $(workspaces.dockerconfig.bound) = true ] && DOCKER_CONFIG="$(workspaces.dockerconfig.path)" && export DOCKER_CONFIG
 
-        # build the image (CERT_DIR_FLAG should be omitted if empty and BUILD_EXTRA_ARGS can contain multiple args)
-        # shellcheck disable=SC2046,SC2086
-
-        buildah ${CERT_DIR_FLAG} --storage-driver=$(params.STORAGE_DRIVER) bud $(params.BUILD_EXTRA_ARGS) \
+        buildah --storage-driver=$(params.STORAGE_DRIVER) bud $(params.BUILD_EXTRA_ARGS) \
         --format=$(params.FORMAT) --tls-verify=$(params.TLSVERIFY) --no-cache \
         -f $(params.DOCKERFILE) -t $(params.IMAGE) $(params.CONTEXT)
 
@@ -109,8 +101,8 @@ spec:
         - name: varlibcontainers
           mountPath: /var/lib/containers
       securityContext:
-        runAsNonRoot: false
-        runAsUser: 0
+        capabilities:
+          add: ["SETFCAP"]
   volumes:
     - name: varlibcontainers
       emptyDir: {}
