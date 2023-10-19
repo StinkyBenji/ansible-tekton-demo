@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: powershell-lint
+  annotations:
+    tekton.dev/displayName: PowerShell Script linting Tekton task
+    tekton.dev/pipelines.minVersion: 0.37.4
+    tekton.dev/tags: powershell,lint,linting,qa
+  labels:
+    app.kubernetes.io/version: "0.1"
+spec:
+  description: Tekton task for linting powershell script.
+  workspaces:
+    - name: source
+      description: A workspace that contains fetched git repo with powershell scripts to be linted.
+  params:
+    - name: path
+      type: string
+      description: "The path within the source repository in which powershell lint will be executed."
+      default: "."
+    - name: image
+      description: image to use to execute this task
+      type: string
+      default: "mcr.microsoft.com/powershell"
+    - name: tag
+      type: string
+      description: The tag for the Powershell image.
+      default: "latest"
+    - name: verbose
+      description: Verbosity level for command
+      type: string
+      default: "SilentlyContinue"
+    - name: extra-args
+      type: string
+      description: The args for powershell script analyzer
+      default: "-Recurse"
+  steps:
+    - name: powershell-lint
+      image: $(params.image):$(params.tag)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env pwsh
+        $VerbosePreference = "$(params.verbose)"
+        $ErrorActionPreference = "Stop"
+
+        Set-PSRepository -ErrorAction Stop -InstallationPolicy Trusted -Name PSGallery -Verbose
+
+        Install-Module -ErrorAction Stop -Name PSScriptAnalyzer -Verbose
+
+        Invoke-ScriptAnalyzer $(params.extra-args) -Path "$(params.path)"

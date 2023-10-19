@@ -109,7 +109,8 @@ spec:
         - name: varlibcontainers
           mountPath: /var/lib/containers
       securityContext:
-        privileged: true
+        runAsNonRoot: false
+        runAsUser: 0
   volumes:
     - name: varlibcontainers
       emptyDir: {}

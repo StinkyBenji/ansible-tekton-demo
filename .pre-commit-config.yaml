@@ -24,11 +24,6 @@ repos:
           - mdformat-mkdocs
           - mdformat-admon
 
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.33.0
-    hooks:
-      - id: markdownlint-fix
-
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:
