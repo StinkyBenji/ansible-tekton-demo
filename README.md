@@ -58,6 +58,15 @@ a series of test. The SBOM and corresponding release version and changelog will 
 In the end, the image will be published to the image registry and the tagged latest image will be
 updated, as well as the git release. A final cleanup will be executed.
 
+### Tekton Chains
+
+In addition, [Tekton Chains](https://tekton.dev/docs/chains/) is used for signing artifacts.
+We used cosign
+`cosign generate-key-pair k8s://ansible-tekton-demo/signing-secrets`
+create a secret where stores registry credentials
+`oc create secret registry-credentials --from-file=.dockerconfigjson --type=kubernetes.io/dockerconfigjson -n $NAMESPACE`
+`oc patch sa pipeline -p "{\"imagePullSecrets\": [{\"name\": \"registry-credentials\"}]}" -n ansible-tekton-demo`
+
 ### Ansible Collection Pipeline
 
 There is a basic ansible collection example in the `examples/collections`
