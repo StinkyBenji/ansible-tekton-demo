@@ -1,0 +1,133 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: ansible-ee-pipeline
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+    pipelinesascode.tekton.dev/task: "[git-clone]"
+    pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
+    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
+    pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
+    pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
+    pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged()
+spec:
+  params:
+    - name: repo_url
+      value: "{{ repo_url }}"
+    - name: revision
+      value: "{{ revision }}"
+  pipelineSpec:
+    params:
+      - name: repo_url
+      - name: revision
+    workspaces:
+      - name: source
+      - name: quay-credentials
+      - name: registry-credentials
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+        params:
+          - name: url
+            value: $(params.repo_url)
+          - name: revision
+            value: $(params.revision)
+
+      - name: detect-secrets
+        runAfter:
+          - fetch-repository
+        taskRef:
+          name: gitleaks
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: config_file_url
+            value: https://raw.githubusercontent.com/tektoncd/catalog/main/task/gitleaks/0.1/samples/gitleaks.toml
+          - name: config_file_path
+            value: gitleaks.toml
+          - name: report_output_path
+            value: gitleaks-report.json
+
+      - name: ansible-lint
+        runAfter:
+          - fetch-repository
+        taskRef:
+          name: ansible-lint
+        workspaces:
+          - name: source
+            workspace: source
+
+      - name: ansible-builder-create
+        runAfter:
+          - ansible-lint
+        taskRef:
+          name: ansible-builder-create
+          kind: Task
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: OUTPUT_FILENAME
+            value: Dockerfile
+          - name: PATH
+            value: "examples/ansible-ee"
+
+      - name: build-image-tag
+        taskRef:
+          name: buildah
+        workspaces:
+          - name: source
+            workspace: source
+          - name: dockerconfig
+            workspace: registry-credentials
+        runAfter:
+          - ansible-builder-create
+        params:
+          - name: TLSVERIFY
+            value: "false"
+          - name: IMAGE
+            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: v0.1.0
+          - name: CONTEXT
+            value: "examples/ansible-ee"
+
+      - name: ee-sanity-test
+        taskRef:
+          name: ansible-ee-sanity-test
+        workspaces:
+          - name: source
+            workspace: source
+        runAfter:
+          - build-image-tag
+        params:
+          - name: IMAGE
+            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: v0.1.0
+
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+    - name: quay-credentials
+      secret:
+        secretName: quay-credentials
+    - name: registry-credentials
+      secret:
+        secretName: registry-credentials

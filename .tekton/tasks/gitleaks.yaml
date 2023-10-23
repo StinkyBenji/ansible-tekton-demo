@@ -46,6 +46,9 @@ spec:
     - name: fetch-config-file
       image: registry.access.redhat.com/ubi8/ubi-minimal:8.8-1072.1697626218
       workingDir: $(workspaces.source.path)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
       script: |
         #!/usr/bin/env bash
 
@@ -60,11 +63,14 @@ spec:
     - name: detect-secret
       image: docker.io/zricethezav/gitleaks:v8.18.0@sha256:e5f6d1a62786affd1abd882ecc73e9353ce78adea1650711f6e351767723712d
       workingDir: $(workspaces.source.path)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
       script: |
         #!/bin/bash
 
-        gitleaks --path="$(params.repo_path)" --config-path="$(params.config_file_path)"  \
-        --format="$(params.output_format)" --report="$(params.report_output_path)" "$@"
+        gitleaks -s "$(params.repo_path)" -c "$(params.config_file_path)"  \
+        -f "$(params.output_format)" -r "$(params.report_output_path)" "$@"
 
         EXIT_CODE="$?"
         if [ "$EXIT_CODE" -eq 0 ]
@@ -73,6 +79,7 @@ spec:
          exit $EXIT_CODE
         else
          echo "============= Leaks found in code. Check generated report at $(params.report_output_path) ==============="
+         cat $(params.report_output_path)
          exit $EXIT_CODE
         fi
 

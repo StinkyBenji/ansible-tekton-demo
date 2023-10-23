@@ -1,0 +1,46 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ansible-ee-sanity-test
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.37.4"
+    tekton.dev/categories: Image Test
+    tekton.dev/tags: image-test
+spec:
+  description: A task for testing the built ansible execution environment.
+  params:
+    - name: IMAGE
+      type: string
+      description: The name of the image to be tested.
+    - name: TAG
+      type: string
+      description: Tag of the image tp be tested.
+    - name: CONTEXT
+      type: string
+      description: Path to the directory to use as context.
+      default: .
+    - name: EXTRA_ARGS
+      description: Extra parameters passed for the build command when building images.
+      default: ""
+  workspaces:
+    - name: source
+
+  steps:
+    - name: test-image
+      image: $(params.IMAGE):$(params.TAG)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        cat /etc/os-release
+        cat /etc/hosts
+
+        pip3 list
+        rpm -qa
+        ansible-galaxy collection list
+
+        yamllint --version
+        ansible-lint --version
+        ansible-playbook --version

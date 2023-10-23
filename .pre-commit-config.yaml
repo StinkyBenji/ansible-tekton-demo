@@ -1,6 +1,13 @@
 fail_fast: true
 
 repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.5.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
@@ -23,11 +30,6 @@ repos:
         additional_dependencies:
           - mdformat-mkdocs
           - mdformat-admon
-
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.33.0
-    hooks:
-      - id: markdownlint-fix
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
