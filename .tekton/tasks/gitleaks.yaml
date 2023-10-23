@@ -79,6 +79,7 @@ spec:
          exit $EXIT_CODE
         else
          echo "============= Leaks found in code. Check generated report at $(params.report_output_path) ==============="
+         cat $(params.report_output_path)
          exit $EXIT_CODE
         fi
 

@@ -42,3 +42,9 @@ repos:
     hooks:
       - id: ansible-lint
         files: \.(yaml|yml)$`
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.4.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]

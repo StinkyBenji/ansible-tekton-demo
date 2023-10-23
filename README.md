@@ -58,6 +58,9 @@ a series of test. The SBOM and corresponding release version and changelog will 
 In the end, the image will be published to the image registry and the tagged latest image will be
 updated, as well as the git release. A final cleanup will be executed.
 
+> **_NOTE:_** we need to create a Kubernetes secret that stores credentials to authenticate against the image
+> registry, please check the example secret in `.tekton/pac/registry-credentials.example.yaml`
+
 ### Tekton Chains
 
 In addition, [Tekton Chains](https://tekton.dev/docs/chains/) is used for signing artifacts.

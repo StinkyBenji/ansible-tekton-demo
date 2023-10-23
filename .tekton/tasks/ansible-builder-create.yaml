@@ -45,6 +45,9 @@ spec:
     - name: ansible-builder-create
       workingDir: $(workspaces.source.path)/$(params.PATH)
       image: $(params.BUILDER_IMAGE)
+      env:
+        - name: HOME
+          value: /tekton/home
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532

@@ -75,6 +75,9 @@ spec:
   steps:
     - image: $(params.BUILDER_IMAGE)
       name: build-and-push
+      env:
+        - name: HOME
+          value: /tekton/home
       resources: {}
       script: |
         if [[ "$(workspaces.dockerconfig.bound)" == "true" ]]; then

@@ -60,7 +60,7 @@ spec:
 
       - name: ansible-lint
         runAfter:
-          - detect-secrets
+          - fetch-repository
         taskRef:
           name: ansible-lint
         workspaces:
