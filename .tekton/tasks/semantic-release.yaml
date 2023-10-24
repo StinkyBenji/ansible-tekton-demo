@@ -1,0 +1,54 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: semantic-release
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.37.4"
+    tekton.dev/categories: semantic release
+    tekton.dev/tags: semantic, versioning, release, changelog
+spec:
+  description: A task for generating release notes and create release.
+  params:
+    - name: IMAGE
+      type: string
+      description: The name of the image used to run the task.
+      default: "registry.access.redhat.com/ubi8/nodejs-18-minimal@sha256:f05c9e5fb1d076091d971330f725c83672fb1165b3a9fb05f64a1a40210efbfd"
+    - name: CONTEXT
+      type: string
+      description: Path to the directory to use as context.
+      default: "."
+    - name: semantic-release-auth
+      type: string
+      description: name of the secret holding the github token and npm token
+      default: semantic-release-auth
+  workspaces:
+    - name: source
+  steps:
+    - name: semantic-release
+      image: $(params.IMAGE)
+      env:
+        - name: GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.semantic-release-auth)
+              key: GH_TOKEN
+        - name: NPM_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.semantic-release-auth)
+              key: NPM_TOKEN
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+      script: |
+        #!/usr/bin/env sh
+
+        npm --version
+        npx --version
+
+        # install all the dependencies for semantic-release
+        npm clean-install
+
+        # run the semantic-release
+        npx semantic-release

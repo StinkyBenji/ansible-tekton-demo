@@ -1,5 +1,5 @@
 module.exports = {
-  branches: "main",
+  branches: ["+([0-9])?(.{+([0-9]),x}).x", "main", "feature/*", "feat/*"],
   preset: "conventionalcommits",
   plugins: [
     [
@@ -25,6 +25,5 @@ module.exports = {
     ],
     "@semantic-release/git",
     "@semantic-release/github",
-    "@codedependant/semantic-release-docker",
   ],
 };
