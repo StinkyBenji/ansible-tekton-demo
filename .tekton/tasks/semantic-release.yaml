@@ -15,11 +15,7 @@ spec:
     - name: IMAGE
       type: string
       description: The name of the image used to run the task.
-      default: "registry.access.redhat.com/ubi8/nodejs-18-minimal@sha256:f05c9e5fb1d076091d971330f725c83672fb1165b3a9fb05f64a1a40210efbfd"
-    - name: CONTEXT
-      type: string
-      description: Path to the directory to use as context.
-      default: "."
+      default: "registry.access.redhat.com/ubi8/nodejs-18@sha256:d4ef3da5c97ae5f063f604d58ba620350c68c086f7f6d88ec0536a883b2d364f"
     - name: semantic-release-auth
       type: string
       description: name of the secret holding the github token and npm token
@@ -40,15 +36,20 @@ spec:
             secretKeyRef:
               name: $(params.semantic-release-auth)
               key: NPM_TOKEN
-      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      workingDir: $(workspaces.source.path)
       script: |
         #!/usr/bin/env sh
 
-        npm --version
-        npx --version
+        echo "npm version: $(npm --version)"
+        echo "npx version: $(npx --version)"
 
         # install all the dependencies for semantic-release
         npm clean-install
+
+        git config --global --add safe.directory $(workspaces.source.path)
 
         # run the semantic-release
         npx semantic-release

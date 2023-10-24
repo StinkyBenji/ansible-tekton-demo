@@ -4,7 +4,6 @@ kind: PipelineRun
 metadata:
   name: ansible-ee-pipeline
   annotations:
-    # pipelinesascode.tekton.dev/on-event: "[push, pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
     pipelinesascode.tekton.dev/task: "[git-clone]"
