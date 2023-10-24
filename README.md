@@ -86,3 +86,10 @@ be generated.
 After the collection passed the test, it will be uploaded to automation
 hub or any other desired artifactory registry. It will be published after human approval
 Finally, a cleanup will be executed.
+
+## Set up semantic-release
+
+[semantic-release](https://github.com/semantic-release/semantic-release) is used for automating
+the whole package release workflow
+
+[semantic-release-docker](https://github.com/esatterwhite/semantic-release-docker)
