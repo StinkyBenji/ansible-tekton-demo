@@ -13,7 +13,7 @@ metadata:
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged()
+      event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/***".pathChanged()
 spec:
   params:
     - name: repo_url
@@ -56,6 +56,7 @@ spec:
             value: gitleaks.toml
           - name: report_output_path
             value: gitleaks-report.json
+
   # yamllint disable rule:comments-indentation
   # - name: ansible-lint
   #   runAfter:
