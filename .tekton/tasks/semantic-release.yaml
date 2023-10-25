@@ -52,4 +52,4 @@ spec:
         git config --global --add safe.directory $(workspaces.source.path)
 
         # run the semantic-release
-        npx semantic-release
+        npx semantic-release --no-ci
