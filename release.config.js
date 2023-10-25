@@ -9,10 +9,10 @@ module.exports = {
           { type: "docs", scope: "README", release: "patch" },
           { type: "refactor", release: "patch" },
           { type: "style", release: "patch" },
-          { scope: "no-release", release: "false" },
         ],
         parserOpts: {
           noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"],
+          noteKeywords: ["feat", "feature"]
         },
       },
     ],
@@ -25,5 +25,6 @@ module.exports = {
     ],
     "@semantic-release/git",
     "@semantic-release/github",
+    "@codedependant/semantic-release-docker",
   ],
 };
