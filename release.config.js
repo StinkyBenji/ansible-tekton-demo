@@ -12,7 +12,7 @@ module.exports = {
         ],
         parserOpts: {
           noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"],
-          noteKeywords: ["feat", "feature"]
+          noteKeywords: ["feat", "feature"],
         },
       },
     ],
@@ -25,6 +25,12 @@ module.exports = {
     ],
     "@semantic-release/git",
     "@semantic-release/github",
-    "@codedependant/semantic-release-docker",
+    // [
+    //   "@codedependant/semantic-release-docker", {
+    //     dockerContext: "examples/ansible-ee",
+    //     dockerRegistry: "quay.io",
+    //     dockerImage: "custom-ansible-ee",
+    //   }
+    // ]
   ],
 };
