@@ -20,6 +20,9 @@ spec:
       type: string
       description: name of the secret holding the github token and npm token
       default: semantic-release-auth
+    - name: source-branch
+      type: string
+      description: the source-branch that semantic-release will run on
   workspaces:
     - name: source
   steps:
@@ -53,5 +56,7 @@ spec:
 
         echo "Currently on branch $(git rev-parse --abbrev-ref HEAD)"
 
+        echo " test param $(params.source-branch)"
+
         # run the semantic-release
-        npx semantic-release --no-ci --dry-run
+        npx semantic-release --no-ci --dry-run --branches $(params.source-branch)
