@@ -5,7 +5,7 @@ metadata:
   name: ansible-ee-pipeline
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[git-clone]"
+    pipelinesascode.tekton.dev/task: "[.tekton/tasks/git-clone.yaml]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
@@ -119,7 +119,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["main"]
+            values: ["HEAD"]
         runAfter:
           - ee-sanity-test
         taskRef:
