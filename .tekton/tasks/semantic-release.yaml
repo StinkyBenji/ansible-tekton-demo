@@ -20,6 +20,9 @@ spec:
       type: string
       description: name of the secret holding the github token and npm token
       default: semantic-release-auth
+    - name: source-branch
+      type: string
+      description: the source-branch that semantic-release will run on
   workspaces:
     - name: source
   steps:
@@ -42,14 +45,14 @@ spec:
       workingDir: $(workspaces.source.path)
       script: |
         #!/usr/bin/env sh
-
         echo "npm version: $(npm --version)"
         echo "npx version: $(npx --version)"
-
         # install all the dependencies for semantic-release
         npm clean-install
-
         git config --global --add safe.directory $(workspaces.source.path)
-
+        echo "Fetch origin"
+        git fetch origin
+        echo "Checkout the $(params.source-branch)"
+        git checkout $(params.source-branch)
         # run the semantic-release
-        npx semantic-release --no-ci
+        npx semantic-release --no-ci --branches $(params.source-branch)

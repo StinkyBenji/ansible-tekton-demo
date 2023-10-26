@@ -117,9 +117,9 @@ spec:
 
       - name: semantic-release
         when:
-          - input: "$(tasks.fetch-repository.results.branch)"
+          - input: "{{ source_branch }}"
             operator: in
-            values: ["HEAD"]
+            values: ["main"]
         runAfter:
           - ee-sanity-test
         taskRef:
@@ -127,6 +127,9 @@ spec:
         workspaces:
           - name: source
             workspace: source
+        params:
+          - name: source-branch
+            value: "{{ source_branch }}"
 
   workspaces:
     - name: source
