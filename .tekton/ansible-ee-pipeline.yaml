@@ -119,7 +119,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["main"]
+            values: ["feat/semantic-release"]
         runAfter:
           # - ee-sanity-test
           - fetch-repository
