@@ -54,11 +54,11 @@ spec:
 
         git config --global --add safe.directory $(workspaces.source.path)
 
-        echo "Currently on branch $(git rev-parse --abbrev-ref HEAD)"
+        echo "Fetch origin"
+        git fetch origin
 
         echo "Checkout the $(params.source-branch)"
-        git fetch origin
         git checkout $(params.source-branch)
 
         # run the semantic-release
-        npx semantic-release --no-ci --dry-run --branches $(params.source-branch)
+        npx semantic-release --no-ci --branches $(params.source-branch)
