@@ -24,7 +24,6 @@ spec:
       default: ""
   workspaces:
     - name: source
-
   steps:
     - name: test-image
       image: $(params.IMAGE)

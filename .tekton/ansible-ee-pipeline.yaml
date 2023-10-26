@@ -113,19 +113,17 @@ spec:
           - name: IMAGE
             value: $(tasks.build-image-tag.results.IMAGE_URL)
 
-      - name: trivy-scanner
+      - name: image-scan
         taskRef:
-          name: ansible-ee-sanity-test
+          name: trivy-scanner
         workspaces:
-          - name: source
+          - name: manifest-dir
             workspace: source
         runAfter:
           - build-image-tag
         params:
-          - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
-          - name: TAG
-            value: v0.1.0
+          - name: IMAGE_PATH
+            value: $(tasks.build-image-tag.results.IMAGE_URL)
 
       - name: semantic-release
         when:
