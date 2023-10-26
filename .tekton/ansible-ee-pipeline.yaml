@@ -5,7 +5,7 @@ metadata:
   name: ansible-ee-pipeline
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[.tekton/tasks/git-clone.yaml]"
+    pipelinesascode.tekton.dev/task: "[git-clone, trivy-scanner]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
@@ -97,11 +97,23 @@ spec:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
-            value: v0.1.0
+            value: preview
           - name: CONTEXT
             value: "examples/ansible-ee"
 
       - name: ee-sanity-test
+        taskRef:
+          name: ansible-ee-sanity-test
+        workspaces:
+          - name: source
+            workspace: source
+        runAfter:
+          - build-image-tag
+        params:
+          - name: IMAGE
+            value: $(tasks.build-image-tag.results.IMAGE_URL)
+
+      - name: trivy-scanner
         taskRef:
           name: ansible-ee-sanity-test
         workspaces:
