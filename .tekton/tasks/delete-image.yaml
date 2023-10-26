@@ -1,0 +1,30 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: delete-image
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.37.4"
+    tekton.dev/categories: delete image
+spec:
+  description: A task for deleting images from OpenShift internal registry.
+  params:
+    - name: IMAGE
+      type: string
+      description: The name of the image to be deleted from OpenShift internal registry.
+    - name: RUNNER_IMAGE
+      type: string
+      description: the OpenShift CLI image used to run the task
+      default: "registry.redhat.io/openshift4/ose-cli@sha256:92d5e1b7dc2ef38e1c98084d25fb9d65dafa426d476702aed4448f6db752e8bb"
+  workspaces:
+    - name: source
+  steps:
+    - name: cleanup-image
+      image: $(params.RUNNER_IMAGE)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        echo "Deleting the image from OpenShift internal registry:"
+        oc delete images $(params.IMAGE)

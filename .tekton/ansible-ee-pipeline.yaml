@@ -12,6 +12,7 @@ metadata:
     pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/delete-image.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
@@ -140,6 +141,14 @@ spec:
         params:
           - name: source-branch
             value: "{{ source_branch }}"
+
+    finally:
+      - name: clean-up
+        taskRef:
+          name: delete-image
+        params:
+          - name: IMAGE
+            value: $(tasks.build-image-tag.results.IMAGE_DIGEST)
 
   workspaces:
     - name: source
