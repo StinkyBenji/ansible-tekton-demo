@@ -57,8 +57,8 @@ spec:
         echo "Currently on branch $(git rev-parse --abbrev-ref HEAD)"
 
         echo "Checkout the $(params.source-branch)"
-
-        git checkout "$(params.source-branch)"
+        git fetch origin
+        git checkout $(params.source-branch)
 
         # run the semantic-release
         npx semantic-release --no-ci --dry-run --branches $(params.source-branch)
