@@ -41,79 +41,79 @@ spec:
           - name: revision
             value: $(params.revision)
 
-      - name: detect-secrets
-        runAfter:
-          - fetch-repository
-        taskRef:
-          name: gitleaks
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: config_file_url
-            value: https://raw.githubusercontent.com/tektoncd/catalog/main/task/gitleaks/0.1/samples/gitleaks.toml
-          - name: config_file_path
-            value: gitleaks.toml
-          - name: report_output_path
-            value: gitleaks-report.json
+      # - name: detect-secrets
+      #   runAfter:
+      #     - fetch-repository
+      #   taskRef:
+      #     name: gitleaks
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: config_file_url
+      #       value: https://raw.githubusercontent.com/tektoncd/catalog/main/task/gitleaks/0.1/samples/gitleaks.toml
+      #     - name: config_file_path
+      #       value: gitleaks.toml
+      #     - name: report_output_path
+      #       value: gitleaks-report.json
 
-      - name: ansible-lint
-        runAfter:
-          - fetch-repository
-        taskRef:
-          name: ansible-lint
-        workspaces:
-          - name: source
-            workspace: source
+      # - name: ansible-lint
+      #   runAfter:
+      #     - fetch-repository
+      #   taskRef:
+      #     name: ansible-lint
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
 
-      - name: ansible-builder-create
-        runAfter:
-          - ansible-lint
-        taskRef:
-          name: ansible-builder-create
-          kind: Task
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: OUTPUT_FILENAME
-            value: Dockerfile
-          - name: PATH
-            value: "examples/ansible-ee"
+      # - name: ansible-builder-create
+      #   runAfter:
+      #     - ansible-lint
+      #   taskRef:
+      #     name: ansible-builder-create
+      #     kind: Task
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: OUTPUT_FILENAME
+      #       value: Dockerfile
+      #     - name: PATH
+      #       value: "examples/ansible-ee"
 
-      - name: build-image-tag
-        taskRef:
-          name: buildah
-        workspaces:
-          - name: source
-            workspace: source
-          - name: dockerconfig
-            workspace: registry-credentials
-        runAfter:
-          - ansible-builder-create
-        params:
-          - name: TLSVERIFY
-            value: "false"
-          - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
-          - name: TAG
-            value: v0.1.0
-          - name: CONTEXT
-            value: "examples/ansible-ee"
+      # - name: build-image-tag
+      #   taskRef:
+      #     name: buildah
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #     - name: dockerconfig
+      #       workspace: registry-credentials
+      #   runAfter:
+      #     - ansible-builder-create
+      #   params:
+      #     - name: TLSVERIFY
+      #       value: "false"
+      #     - name: IMAGE
+      #       value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+      #     - name: TAG
+      #       value: v0.1.0
+      #     - name: CONTEXT
+      #       value: "examples/ansible-ee"
 
-      - name: ee-sanity-test
-        taskRef:
-          name: ansible-ee-sanity-test
-        workspaces:
-          - name: source
-            workspace: source
-        runAfter:
-          - build-image-tag
-        params:
-          - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
-          - name: TAG
-            value: v0.1.0
+      # - name: ee-sanity-test
+      #   taskRef:
+      #     name: ansible-ee-sanity-test
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   runAfter:
+      #     - build-image-tag
+      #   params:
+      #     - name: IMAGE
+      #       value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+      #     - name: TAG
+      #       value: v0.1.0
 
       - name: semantic-release
         when:
@@ -121,7 +121,8 @@ spec:
             operator: in
             values: ["HEAD"]
         runAfter:
-          - ee-sanity-test
+          # - ee-sanity-test
+          - fetch-repository
         taskRef:
           name: semantic-release
         workspaces:

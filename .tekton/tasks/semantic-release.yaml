@@ -51,7 +51,7 @@ spec:
 
         git config --global --add safe.directory $(workspaces.source.path)
 
-        echo "Currently on brasnch $(git branch --show-current)"
+        echo "Currently on branch $(git rev-parse --abbrev-ref HEAD)"
 
         # run the semantic-release
-        npx semantic-release --no-ci
+        npx semantic-release --no-ci --dry-run
