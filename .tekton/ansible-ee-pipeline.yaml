@@ -5,13 +5,14 @@ metadata:
   name: ansible-ee-pipeline
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[.tekton/tasks/git-clone.yaml]"
+    pipelinesascode.tekton.dev/task: "[git-clone, trivy-scanner]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
     pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/delete-image-stream.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
@@ -96,8 +97,6 @@ spec:
             value: "false"
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
-          - name: TAG
-            value: v0.1.0
           - name: CONTEXT
             value: "examples/ansible-ee"
 
@@ -112,8 +111,23 @@ spec:
         params:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
-          - name: TAG
-            value: v0.1.0
+
+      - name: image-scan
+        taskRef:
+          name: trivy-scanner
+        workspaces:
+          - name: manifest-dir
+            workspace: source
+        runAfter:
+          - build-image-tag
+        params:
+          - name: IMAGE_PATH
+            value: $(tasks.build-image-tag.results.IMAGE_URL)
+          - name: ARGS
+            value:
+              - "image"
+              - "--severity HIGH,CRITICAL"
+              - "--ignore-unfixed"
 
       - name: semantic-release
         when:
@@ -130,6 +144,17 @@ spec:
         params:
           - name: source-branch
             value: "{{ source_branch }}"
+
+    finally:
+      - name: clean-up
+        taskRef:
+          name: delete-image-stream
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: IMAGE_STREAM
+            value: custom-ansible-ee
 
   workspaces:
     - name: source
