@@ -125,6 +125,11 @@ spec:
         params:
           - name: IMAGE_PATH
             value: $(tasks.build-image-tag.results.IMAGE_URL)
+          - name: ARGS
+            value:
+              - "image"
+              - "--severity HIGH,CRITICAL"
+              - "--ignore-unfixed"
 
       - name: semantic-release
         when:
