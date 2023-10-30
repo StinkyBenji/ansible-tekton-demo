@@ -1,0 +1,41 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: push-ee-image
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.37.4"
+    tekton.dev/categories: Push image tag
+    tekton.dev/tags: image push
+spec:
+  description: A task for pushing the built ansible execution environment image.
+  params:
+    - name: srcImageURL
+      type: string
+      description: the source image to be copied to the destination registry
+    - name: destImageURL
+      type: string
+      description: the image where the image from source should be copied to
+    - name: tag
+      type: string
+      description: the tag of the image to be pushed
+    - name: srcTLSverify
+      description: Verify the TLS on the src registry endpoint
+      type: string
+      default: "true"
+    - name: destTLSverify
+      description: Verify the TLS on the dest registry endpoint
+      type: string
+      default: "true"
+  steps:
+    - name: skopeo-copy
+      env:
+        - name: HOME
+          value: /tekton/home
+      image: quay.io/skopeo/stable:v1
+      script: |
+        #!/bin/sh
+
+        skopeo copy $(params.srcImageURL) $(params.destImageURL):$(params.tag) --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)"

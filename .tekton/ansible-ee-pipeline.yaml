@@ -137,7 +137,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["main"]
+            values: ["feat/update-push-image-tag"]
         runAfter:
           - ee-sanity-test
         taskRef:
@@ -149,6 +149,46 @@ spec:
           - name: source-branch
             value: "{{ source_branch }}"
 
+      - name: push-ee-image
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - semantic-release
+        taskRef:
+          name: push-ee-image
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: $(tasks.build-image-tag.results.IMAGE_URL)
+          - name: destImageURL
+            value: quay.io/stbenji/custom-ansible-ee
+          - name: tag
+            value: $(tasks.semantic-release.results.version)
+
+      - name: update-latest-tag
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - semantic-release
+        taskRef:
+          name: push-ee-image
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: $(tasks.build-image-tag.results.IMAGE_URL)
+          - name: destImageURL
+            value: quay.io/stbenji/custom-ansible-ee
+          - name: tag
+            value: "latest"
+
     finally:
       - name: clean-up
         taskRef:
@@ -158,7 +198,7 @@ spec:
             workspace: source
         params:
           - name: IMAGE
-            value: "image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee:{{ source_branch}}"
+            value: "image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee:{{ source_branch }}"
 
   workspaces:
     - name: source
