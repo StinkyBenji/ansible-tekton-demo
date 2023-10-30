@@ -13,7 +13,7 @@ metadata:
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/push-ee-image.yaml]"
-    pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-tag.yaml]"
+    pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-internal-image-tag.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
@@ -193,7 +193,7 @@ spec:
     finally:
       - name: clean-up
         taskRef:
-          name: delete-image-stream
+          name: delete-internal-image-tag
         workspaces:
           - name: source
             workspace: source
