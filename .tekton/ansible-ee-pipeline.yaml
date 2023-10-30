@@ -15,7 +15,7 @@ metadata:
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/push-ee-image.yaml]"
     pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-internal-image-tag.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
+      event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged() || event == "push"
 spec:
   params:
     - name: repo_url
@@ -154,7 +154,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["main"]
+            values: ["feat/update-push-image-tag"]
         runAfter:
           - semantic-release
         taskRef:
@@ -174,7 +174,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["main"]
+            values: ["feat/update-push-image-tag"]
         runAfter:
           - semantic-release
         taskRef:
@@ -199,7 +199,7 @@ spec:
             workspace: source
         params:
           - name: IMAGE
-            value: "image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee:{{ source_branch }}"
+            value: $(tasks.build-image-tag.results.IMAGE_DIGEST)
 
   workspaces:
     - name: source

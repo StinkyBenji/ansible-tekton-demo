@@ -59,4 +59,5 @@ spec:
         echo "Checkout the $(params.source-branch)"
         git checkout $(params.source-branch)
         # run the semantic-release
-        npx semantic-release --no-ci --branches $(params.source-branch) --dry-run
+        npx semantic-release --no-ci --branches $(params.source-branch)
+        npx semantic-release --version | tee $(results.version.path)

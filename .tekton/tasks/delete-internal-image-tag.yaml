@@ -27,4 +27,4 @@ spec:
       script: |
         #!/usr/bin/env sh
         echo "Deleting the image tag:"
-        oc delete $(params.IMAGE)
+        oc delete image $(params.IMAGE)
