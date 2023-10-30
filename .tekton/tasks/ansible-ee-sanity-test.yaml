@@ -12,6 +12,9 @@ metadata:
 spec:
   description: A task for testing the built ansible execution environment.
   params:
+    - name: TAG
+      type: string
+      description: Tag of the image tp be tested.
     - name: IMAGE
       type: string
       description: The name of the image to be tested.
@@ -26,7 +29,7 @@ spec:
     - name: source
   steps:
     - name: test-image
-      image: $(params.IMAGE)
+      image: $(params.IMAGE):$(params.TAG)
       workingDir: $(workspaces.source.path)
       script: |
         #!/usr/bin/env sh

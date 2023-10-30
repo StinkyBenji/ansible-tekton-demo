@@ -97,6 +97,8 @@ spec:
             value: "false"
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: "{{ source_branch }}"
           - name: CONTEXT
             value: "examples/ansible-ee"
 
@@ -111,6 +113,8 @@ spec:
         params:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: "{{ source_branch }}"
 
       - name: image-scan
         taskRef:
@@ -153,8 +157,8 @@ spec:
           - name: source
             workspace: source
         params:
-          - name: IMAGE_STREAM
-            value: custom-ansible-ee
+          - name: IMAGE
+            value: "image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee:{{ source_branch}}"
 
   workspaces:
     - name: source
