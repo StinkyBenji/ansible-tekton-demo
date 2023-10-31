@@ -13,9 +13,9 @@ metadata:
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/push-ee-image.yaml]"
-    pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-internal-image-tag.yaml]"
+    pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-stream.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged() || event == "push"
+      event == "push" || event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
   params:
     - name: repo_url
@@ -113,7 +113,7 @@ spec:
           - build-image-tag
         params:
           - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+            value: default-route-openshift-image-registry.apps.ocp4.whatever.out-of-my-head.de/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
             value: "{{ pull_request_number }}"
 
@@ -166,7 +166,7 @@ spec:
           - name: srcImageURL
             value: $(tasks.build-image-tag.results.IMAGE_URL)
           - name: destImageURL
-            value: quay.io/stbenji/custom-ansible-ee
+            value: quay.io/stbenji/ansible-tekton-demo
           - name: tag
             value: $(tasks.semantic-release.results.version)
 
@@ -186,20 +186,24 @@ spec:
           - name: srcImageURL
             value: $(tasks.build-image-tag.results.IMAGE_URL)
           - name: destImageURL
-            value: quay.io/stbenji/custom-ansible-ee
+            value: quay.io/stbenji/ansible-tekton-demo
           - name: tag
             value: "latest"
 
-    finally:
+      # finally:
       - name: clean-up
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
         taskRef:
-          name: delete-internal-image-tag
+          name: delete-image-stream
         workspaces:
           - name: source
             workspace: source
         params:
-          - name: IMAGE
-            value: $(tasks.build-image-tag.results.IMAGE_DIGEST)
+          - name: IMAGE_STREAM
+            value: custom-ansible-ee
 
   workspaces:
     - name: source

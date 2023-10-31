@@ -2,18 +2,18 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: delete-internal-image-tag
+  name: delete-image-stream
   labels:
     app.kubernetes.io/version: "0.1"
   annotations:
     tekton.dev/pipelines.minVersion: "0.37.4"
-    tekton.dev/categories: delete image tag
+    tekton.dev/categories: delete image stream
 spec:
-  description: A task for deleting image tag in OpenShift
+  description: A task for deleting image stream in OpenShift
   params:
-    - name: IMAGE
+    - name: IMAGE_STREAM
       type: string
-      description: The name of the image with tag to be deleted from OpenShift
+      description: The name of the image stream to be deleted from OpenShift
     - name: RUNNER_IMAGE
       type: string
       description: the OpenShift CLI image used to run the task
@@ -21,10 +21,13 @@ spec:
   workspaces:
     - name: source
   steps:
-    - name: cleanup-image-tag
+    - name: cleanup-image-stream
       image: $(params.RUNNER_IMAGE)
       workingDir: $(workspaces.source.path)
+      env:
+        - name: HOME
+          value: /tekton/home
       script: |
         #!/usr/bin/env sh
-        echo "Deleting the image tag:"
-        oc delete image $(params.IMAGE)
+        echo "Deleting the image stream:"
+        oc delete is $(params.IMAGE_STREAM)

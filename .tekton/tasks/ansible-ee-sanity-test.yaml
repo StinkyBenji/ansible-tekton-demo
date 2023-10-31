@@ -30,6 +30,12 @@ spec:
   steps:
     - name: test-image
       image: $(params.IMAGE):$(params.TAG)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      env:
+        - name: HOME
+          value: /tekton/home
       workingDir: $(workspaces.source.path)
       script: |
         #!/usr/bin/env sh
