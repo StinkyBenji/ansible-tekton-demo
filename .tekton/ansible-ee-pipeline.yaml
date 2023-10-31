@@ -12,10 +12,10 @@ metadata:
     pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/push-ee-image.yaml]"
+    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-stream.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" || event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
+      event == "push" && target_branch == "main" || event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
   params:
     - name: repo_url
@@ -28,7 +28,6 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: quay-credentials
       - name: registry-credentials
     tasks:
       - name: fetch-repository
@@ -113,7 +112,7 @@ spec:
           - build-image-tag
         params:
           - name: IMAGE
-            value: default-route-openshift-image-registry.apps.ocp4.whatever.out-of-my-head.de/ansible-tekton-demo/custom-ansible-ee
+            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
             value: "{{ pull_request_number }}"
 
@@ -138,7 +137,7 @@ spec:
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["feat/update-push-image-tag"]
+            values: ["main"]
         runAfter:
           - ee-sanity-test
         taskRef:
@@ -150,47 +149,43 @@ spec:
           - name: source-branch
             value: "{{ source_branch }}"
 
-      - name: push-ee-image
+      - name: push-image-tag
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["feat/update-push-image-tag"]
+            values: ["main"]
         runAfter:
           - semantic-release
         taskRef:
-          name: push-ee-image
+          name: skopeo-copy
         workspaces:
           - name: source
             workspace: source
         params:
           - name: srcImageURL
-            value: $(tasks.build-image-tag.results.IMAGE_URL)
+            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
           - name: destImageURL
-            value: quay.io/stbenji/ansible-tekton-demo
-          - name: tag
-            value: $(tasks.semantic-release.results.version)
+            value: "docker://quay.io/stbenji/ansible-tekton-demo:$(tasks.semantic-release.results.version)"
 
-      - name: update-latest-tag
+      - name: update-image-latest
         when:
           - input: "{{ source_branch }}"
             operator: in
-            values: ["feat/update-push-image-tag"]
+            values: ["main"]
         runAfter:
           - semantic-release
         taskRef:
-          name: push-ee-image
+          name: skopeo-copy
         workspaces:
           - name: source
             workspace: source
         params:
           - name: srcImageURL
-            value: $(tasks.build-image-tag.results.IMAGE_URL)
+            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
           - name: destImageURL
-            value: quay.io/stbenji/ansible-tekton-demo
-          - name: tag
-            value: "latest"
+            value: "docker://quay.io/stbenji/ansible-tekton-demo:latest"
 
-      # finally:
+    finally:
       - name: clean-up
         when:
           - input: "{{ source_branch }}"
@@ -214,9 +209,6 @@ spec:
           resources:
             requests:
               storage: 5Gi
-    - name: quay-credentials
-      secret:
-        secretName: quay-credentials
     - name: registry-credentials
       secret:
         secretName: registry-credentials
