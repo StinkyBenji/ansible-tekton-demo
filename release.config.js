@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ["+([0-9])?(.{+([0-9]),x}).x", "main", "feature/*", "feat/*"],
+  branches: ["+([0-9])?(.{+([0-9]),x}).x", "main"],
   preset: "conventionalcommits",
   plugins: [
     [
