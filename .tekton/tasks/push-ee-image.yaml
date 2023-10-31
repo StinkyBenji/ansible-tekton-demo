@@ -29,13 +29,17 @@ spec:
       description: Verify the TLS on the dest registry endpoint
       type: string
       default: "true"
+
   steps:
     - name: skopeo-copy
       env:
         - name: HOME
           value: /tekton/home
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
       image: quay.io/skopeo/stable:v1
       script: |
         #!/bin/sh
-
-        skopeo copy $(params.srcImageURL) $(params.destImageURL):$(params.tag) --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)"
+        set -x
+        skopeo copy --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)" $(params.srcImageURL) $(params.destImageURL):$(params.tag)
