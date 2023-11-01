@@ -1,0 +1,51 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: skopeo-copy
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.37.4"
+    tekton.dev/categories: Push image tag
+    tekton.dev/tags: image push
+spec:
+  description: A task for pushing the built ansible execution environment image.
+  params:
+    - name: srcImageURL
+      type: string
+      description: the source image to be copied to the destination registry
+    - name: destImageURL
+      type: string
+      description: the image where the image from source should be copied to
+    - name: srcTLSverify
+      description: Verify the TLS on the src registry endpoint
+      type: string
+      default: "true"
+    - name: destTLSverify
+      description: Verify the TLS on the dest registry endpoint
+      type: string
+      default: "true"
+    - name: skopeoImage
+      description: the skopeo image to be used for the task
+      type: string
+      default: "quay.io/skopeo/stable:v1"
+
+  workspaces:
+    - name: source
+  steps:
+    - name: skopeo-copy
+      env:
+        - name: HOME
+          value: /tekton/home
+        - name: REGISTRY_AUTH_FILE
+          value: $HOME/.docker/config.json
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      image: $(params.skopeoImage)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        set -x
+        skopeo copy --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)" $(params.srcImageURL) $(params.destImageURL)

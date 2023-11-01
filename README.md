@@ -10,6 +10,7 @@ or automation hub, semantic release and SBOM generator.
 - OpenShift 4.13.12
 - Ansible
 - OpenShift Pipelines 1.12.0
+- Semantic Release v22.0.6
 
 ## Setup pre-commit
 
@@ -36,16 +37,15 @@ in `.tekton/pac/` in the corresponding namespace with the correct values.
 
 ## Tekton Pipelines Architecture
 
-There are two `PipelineRun` in `.tekton/`:
+There is one `PipelineRun` in `.tekton/`:
 
 - `ansible-ee-pipeline`
-- `ansible-collection-pipeline`
 
 ### Ansible Execusion Environment Pipeline
 
 There is a basic example for a basic [Ansible execution
 environment](https://docs.ansible.com/automation-controller/latest/html/userguide/execution_environments.html)
-in the `examples/ansible-ee`.
+in the `ansible-ee`.
 The pipeline consists of the tasks showed below:
 
 ![figure](./assets/ansible-ee-pipeline.png)
@@ -64,32 +64,18 @@ updated, as well as the git release. A final cleanup will be executed.
 ### Tekton Chains
 
 In addition, [Tekton Chains](https://tekton.dev/docs/chains/) is used for signing artifacts.
+
 We used cosign
+
 `cosign generate-key-pair k8s://ansible-tekton-demo/signing-secrets`
+
 create a secret where stores registry credentials
+
 `oc create secret registry-credentials --from-file=.dockerconfigjson --type=kubernetes.io/dockerconfigjson -n $NAMESPACE`
+
 `oc patch sa pipeline -p "{\"imagePullSecrets\": [{\"name\": \"registry-credentials\"}]}" -n ansible-tekton-demo`
-
-### Ansible Collection Pipeline
-
-There is a basic ansible collection example in the `examples/collections`
-
-The pipeline consists of the tasks showed below:
-
-![figure](./assets/ansible-collection-pipeline.png)
-
-Similar to `ansible-ee-pipeline`, after cloning the Git repo, secret scanning,
-and ansible linting on the ansible manifests, a set of tests for the collection
-will be executed. The SBOM and corresponding release version and changelog will
-be generated.
-
-After the collection passed the test, it will be uploaded to automation
-hub or any other desired artifactory registry. It will be published after human approval
-Finally, a cleanup will be executed.
 
 ## Set up semantic-release
 
 [semantic-release](https://github.com/semantic-release/semantic-release) is used for automating
 the whole package release workflow
-
-[semantic-release-docker](https://github.com/esatterwhite/semantic-release-docker)

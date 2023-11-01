@@ -23,6 +23,10 @@ spec:
     - name: source-branch
       type: string
       description: the source-branch that semantic-release will run on
+  results:
+    - description: The version to be released
+      name: version
+      type: string
   workspaces:
     - name: source
   steps:
@@ -56,3 +60,4 @@ spec:
         git checkout $(params.source-branch)
         # run the semantic-release
         npx semantic-release --no-ci --branches $(params.source-branch)
+        cat .VERSION | tee $(results.version.path)

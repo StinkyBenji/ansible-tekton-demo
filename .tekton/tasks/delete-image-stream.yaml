@@ -24,6 +24,9 @@ spec:
     - name: cleanup-image-stream
       image: $(params.RUNNER_IMAGE)
       workingDir: $(workspaces.source.path)
+      env:
+        - name: HOME
+          value: /tekton/home
       script: |
         #!/usr/bin/env sh
         echo "Deleting the image stream:"

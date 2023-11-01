@@ -12,9 +12,10 @@ metadata:
     pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/delete-image-stream.yaml]"
+    pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/skopeo-copy.yaml]"
+    pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-stream.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" || event == "push" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
+      (event == "push" || event == "pull_request") && target_branch == "main" && ("ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged())
 spec:
   params:
     - name: repo_url
@@ -27,7 +28,6 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: quay-credentials
       - name: registry-credentials
     tasks:
       - name: fetch-repository
@@ -80,7 +80,7 @@ spec:
           - name: OUTPUT_FILENAME
             value: Dockerfile
           - name: PATH
-            value: "examples/ansible-ee"
+            value: "ansible-ee"
 
       - name: build-image-tag
         taskRef:
@@ -97,8 +97,10 @@ spec:
             value: "false"
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: "{{ pull_request_number }}"
           - name: CONTEXT
-            value: "examples/ansible-ee"
+            value: "ansible-ee"
 
       - name: ee-sanity-test
         taskRef:
@@ -111,6 +113,8 @@ spec:
         params:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+          - name: TAG
+            value: "{{ pull_request_number }}"
 
       - name: image-scan
         taskRef:
@@ -145,8 +149,48 @@ spec:
           - name: source-branch
             value: "{{ source_branch }}"
 
+      - name: push-image-tag
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - semantic-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
+          - name: destImageURL
+            value: "docker://quay.io/stbenji/ansible-tekton-demo:$(tasks.semantic-release.results.version)"
+
+      - name: update-image-latest
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - semantic-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
+          - name: destImageURL
+            value: "docker://quay.io/stbenji/ansible-tekton-demo:latest"
+
     finally:
       - name: clean-up
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
         taskRef:
           name: delete-image-stream
         workspaces:
@@ -165,9 +209,6 @@ spec:
           resources:
             requests:
               storage: 5Gi
-    - name: quay-credentials
-      secret:
-        secretName: quay-credentials
     - name: registry-credentials
       secret:
         secretName: registry-credentials

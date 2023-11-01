@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ["+([0-9])?(.{+([0-9]),x}).x", "main", "feature/*", "feat/*"],
+  branches: ["+([0-9])?(.{+([0-9]),x}).x", "main"],
   preset: "conventionalcommits",
   plugins: [
     [
@@ -21,6 +21,12 @@ module.exports = {
       "@semantic-release/changelog",
       {
         changelogFile: "CHANGELOG.md",
+      },
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        verifyReleaseCmd: "echo ${nextRelease.version} > .VERSION",
       },
     ],
     "@semantic-release/git",
