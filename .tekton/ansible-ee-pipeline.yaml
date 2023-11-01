@@ -181,7 +181,7 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
+            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)@$(tasks.build-image-tag.results.IMAGE_DIGEST)"
           - name: destImageURL
             value: "docker://quay.io/stbenji/ansible-tekton-demo:latest"
 
