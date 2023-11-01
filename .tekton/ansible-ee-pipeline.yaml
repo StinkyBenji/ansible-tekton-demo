@@ -98,7 +98,7 @@ spec:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
-            value: "{{ pull_request_number }}"
+            value: preview
           - name: CONTEXT
             value: "ansible-ee"
 
@@ -114,7 +114,7 @@ spec:
           - name: IMAGE
             value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
-            value: "{{ pull_request_number }}"
+            value: preview
 
       - name: image-scan
         taskRef:
