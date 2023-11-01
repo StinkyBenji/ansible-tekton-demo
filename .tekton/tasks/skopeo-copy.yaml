@@ -39,7 +39,7 @@ spec:
         - name: HOME
           value: /tekton/home
         - name: REGISTRY_AUTH_FILE
-          value: $HOME/.docker/config.json
+          value: /tekton/home/.docker/config.json
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
@@ -48,5 +48,5 @@ spec:
       script: |
         #!/bin/sh
         set -x
-        skopeo copy --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)" $(params.srcImageURL)
-        $(params.destImageURL)
+
+        skopeo copy --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)" $(params.srcImageURL) $(params.destImageURL)
