@@ -1,3 +1,11 @@
+## [1.1.2](https://github.com/StinkyBenji/ansible-tekton-demo/compare/v1.1.1...v1.1.2) (2023-11-01)
+
+
+### Bug Fixes
+
+* ansible-lint version ([7c77f7b](https://github.com/StinkyBenji/ansible-tekton-demo/commit/7c77f7b38485fc985cebbbc1907426d4dadb8337))
+* semantic release version result new line ([64ec38d](https://github.com/StinkyBenji/ansible-tekton-demo/commit/64ec38d85d36a8746bdb121b40deebb2a525ddad))
+
 ## [1.1.1](https://github.com/StinkyBenji/ansible-tekton-demo/compare/v1.1.0...v1.1.1) (2023-11-01)
 
 
