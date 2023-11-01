@@ -20,9 +20,6 @@ spec:
     Dockerfile to assemble a container image, then pushes that image to a
     container registry.
   params:
-    - description: Tag of the image buildah will produce.
-      name: TAG
-      type: string
     - description: Name of the image buildah will produce.
       name: IMAGE
       type: string
@@ -102,16 +99,16 @@ spec:
         buildah --storage-driver=$(params.STORAGE_DRIVER) bud \
           $(params.BUILD_EXTRA_ARGS) --format=$(params.FORMAT) \
           --tls-verify=$(params.TLSVERIFY) --no-cache \
-          -f $(params.DOCKERFILE) -t "$(params.IMAGE):$(params.TAG)" $(params.CONTEXT)
+          -f $(params.DOCKERFILE) -t "$(params.IMAGE)" $(params.CONTEXT)
 
         [[ "$(params.SKIP_PUSH)" == "true" ]] && echo "Push skipped" && exit 0
 
         buildah --storage-driver=$(params.STORAGE_DRIVER) push \
           $(params.PUSH_EXTRA_ARGS) --tls-verify=$(params.TLSVERIFY) \
-          --digestfile /tmp/image-digest "$(params.IMAGE):$(params.TAG)" \
-          docker://"$(params.IMAGE):$(params.TAG)"
+          --digestfile /tmp/image-digest "$(params.IMAGE)" \
+          docker://"$(params.IMAGE)"
         cat /tmp/image-digest | tee $(results.IMAGE_DIGEST.path)
-        echo -n "$(params.IMAGE):$(params.TAG)" | tee $(results.IMAGE_URL.path)
+        echo -n "$(params.IMAGE)" | tee $(results.IMAGE_URL.path)
       securityContext:
         capabilities:
           add:
