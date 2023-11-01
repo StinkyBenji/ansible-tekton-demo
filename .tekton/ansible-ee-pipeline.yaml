@@ -18,8 +18,7 @@ metadata:
       event == "pull_request" && target_branch == "main" && "examples/ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
   params:
-    - name: repo_url485261
-
+    - name: repo_url
       value: "{{ repo_url }}"
     - name: revision
       value: "{{ revision }}"
@@ -113,7 +112,7 @@ spec:
           - build-image-tag
         params:
           - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/ansible-tekton-demo/custom-ansible-ee
+            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
           - name: TAG
             value: "{{ pull_request_number }}"
 
