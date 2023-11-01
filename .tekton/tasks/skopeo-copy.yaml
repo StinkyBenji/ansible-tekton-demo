@@ -49,4 +49,4 @@ spec:
         #!/bin/sh
         set -x
 
-        skopeo copy --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)" $(params.srcImageURL) $(params.destImageURL)
+        skopeo copy "$(params.srcImageURL)" "$(params.destImageURL)" --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)"
