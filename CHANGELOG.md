@@ -1,3 +1,18 @@
+## [1.1.0](https://github.com/StinkyBenji/ansible-tekton-demo/compare/v1.0.0...v1.1.0) (2023-11-01)
+
+
+### Features
+
+* add task for updating and pushing image to quay.io with new tag ([#14](https://github.com/StinkyBenji/ansible-tekton-demo/issues/14)) ([0ccb5da](https://github.com/StinkyBenji/ansible-tekton-demo/commit/0ccb5da55f4704c79ce75ca1b2cedf2ac6dc403c))
+
+
+### Bug Fixes
+
+* add double quotes to skopeo copy params ([61b51de](https://github.com/StinkyBenji/ansible-tekton-demo/commit/61b51dea621233f10f4b101ec1cdbece84c0b253))
+* blank space in task script ([b24b88a](https://github.com/StinkyBenji/ansible-tekton-demo/commit/b24b88aa2d510d0ead5a35a146616b9ece0dff8b))
+* env in skopeo copy ([1433b55](https://github.com/StinkyBenji/ansible-tekton-demo/commit/1433b551c594c077e9757cc6b344fff975090635))
+* remove pull request specific params ([#18](https://github.com/StinkyBenji/ansible-tekton-demo/issues/18)) ([b8b79ea](https://github.com/StinkyBenji/ansible-tekton-demo/commit/b8b79ea819c43167291dd552571d5d929d097e05))
+
 ## 1.0.0 (2023-10-30)
 
 
