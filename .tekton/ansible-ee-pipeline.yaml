@@ -15,7 +15,7 @@ metadata:
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-stream.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" && source_branch == "refs/heads/main" || event == "pull_request" && target_branch == "refs/heads/main" && "ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged()
+      event == "push" && source_branch == "refs/heads/main" || event == "pull_request" && target_branch == "refs/heads/main" && "ansible-ee/***".pathChanged() || event == "pull_request" && target_branch == "refs/heads/main" && ".tekton/ansible-ee-pipeline.yaml".pathChanged()
 spec:
   params:
     - name: repo_url
