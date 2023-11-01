@@ -111,7 +111,7 @@ spec:
           --digestfile /tmp/image-digest "$(params.IMAGE):$(params.TAG)" \
           docker://"$(params.IMAGE):$(params.TAG)"
         cat /tmp/image-digest | tee $(results.IMAGE_DIGEST.path)
-        echo "$(params.IMAGE):$(params.TAG)" | tee $(results.IMAGE_URL.path)
+        echo -n "$(params.IMAGE):$(params.TAG)" | tee $(results.IMAGE_URL.path)
       securityContext:
         capabilities:
           add:
