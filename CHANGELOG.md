@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/StinkyBenji/ansible-tekton-demo/compare/v1.1.0...v1.1.1) (2023-11-01)
+
+
+### Bug Fixes
+
+* add echo -n ([8fd7991](https://github.com/StinkyBenji/ansible-tekton-demo/commit/8fd7991e9194bc36d62604535713970a991cfbe8))
+
 ## [1.1.0](https://github.com/StinkyBenji/ansible-tekton-demo/compare/v1.0.0...v1.1.0) (2023-11-01)
 
 
