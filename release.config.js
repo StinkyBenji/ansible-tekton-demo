@@ -23,6 +23,12 @@ module.exports = {
         changelogFile: "CHANGELOG.md",
       },
     ],
+    [
+      "@semantic-release/exec",
+      {
+        verifyReleaseCmd: "echo ${nextRelease.version} > .VERSION",
+      },
+    ],
     "@semantic-release/git",
     "@semantic-release/github",
   ],
