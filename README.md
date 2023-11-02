@@ -91,6 +91,7 @@ In this example, semantic-release is included in Tekton pipeline, there are othe
 
 - [ ] Implement SBOM
 - [ ] Implement integration test
+- [ ] Push signature to Quay.io
 
 ## Links
 
