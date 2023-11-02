@@ -30,18 +30,14 @@ spec:
     - name: image
       description: image to use to execute this task
       type: string
-      default: "quay.io/ansible/creator-ee"
-    - name: tag
-      type: string
-      description: The tag for the image.
-      default: "latest"
+      default: "quay.io/ansible/creator-ee:latest"
     - name: verbose
       description: If true it will output the commands being executed in the script.
       type: string
       default: "false"
   steps:
     - name: ansible-linting
-      image: $(params.image):$(params.tag)
+      image: $(params.image)
       env:
         - name: HOME
           value: /tekton/home
@@ -52,12 +48,9 @@ spec:
       workingDir: $(workspaces.source.path)/$(params.context-directory)
       script: |
         #!/usr/bin/env sh
-
         # Force to exit if one of the command fails
         set -e
-
         if [ "$(params.verbose)" = "true" ] ; then
           set -x
         fi
-
         ansible-lint $(params.extra-args) $(params.manifests-path)

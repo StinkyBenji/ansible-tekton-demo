@@ -82,6 +82,5 @@ spec:
          cat $(params.report_output_path)
          exit $EXIT_CODE
         fi
-
       args:
         - $(params.args)

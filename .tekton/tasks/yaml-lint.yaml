@@ -45,9 +45,7 @@ spec:
       script: |
         #!/usr/bin/env sh
         set -e
-
         if [ "$(params.verbose)" = "true" ] ; then
           set -x
         fi
-
         yamllint $(params.extra-args)

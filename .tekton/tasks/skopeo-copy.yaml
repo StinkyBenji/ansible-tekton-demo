@@ -30,7 +30,6 @@ spec:
       description: the skopeo image to be used for the task
       type: string
       default: "quay.io/skopeo/stable:v1"
-
   workspaces:
     - name: source
   steps:
@@ -48,5 +47,4 @@ spec:
       script: |
         #!/bin/sh
         set -x
-
         skopeo copy "$(params.srcImageURL)" "$(params.destImageURL)" --src-tls-verify="$(params.srcTLSverify)" --dest-tls-verify="$(params.destTLSverify)"
