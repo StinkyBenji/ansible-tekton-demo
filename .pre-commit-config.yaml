@@ -35,7 +35,7 @@ repos:
     rev: v3.0.3
     hooks:
       - id: prettier
-        files: \.(js|ts|jsx|tsx|css|less|html|json|markdown|md|yaml|yml)$
+        files: \.(js|json|yaml|yml)$
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.23.0

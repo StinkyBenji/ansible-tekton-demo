@@ -91,3 +91,8 @@ In this example, semantic-release is included in Tekton pipeline, there are othe
 
 - [ ] Implement SBOM
 - [ ] Implement integration test
+
+## Links
+
+- [Tekton results new line issues](https://github.com/tektoncd/pipeline/issues/2936),
+    current solution is to do `echo -n "something" | tee $(results.someresult.path)`
