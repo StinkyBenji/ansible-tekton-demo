@@ -93,6 +93,7 @@ In this example, semantic-release is included in Tekton pipeline, there are othe
 - [ ] Implement integration test
 - [ ] Push signature to Quay.io
 - [ ] Use custom SA - everything as code
+- [ ] Fix Buildah task - might not need to use a custom task
 
 ## Links
 
