@@ -1,4 +1,4 @@
-*secret*
+*secret.yaml
 node_modules/
 .env
 test*

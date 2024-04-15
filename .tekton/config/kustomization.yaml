@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: image-build
+
+resources:
+  - pac-secret.yaml
+  - registry-secret.yaml
+  - semantic-release-auth-secret.yaml
+  - pipelines-edit-rb.yaml
+  - pipelines-sa.yaml
+  - pipelines-scc-rb.yaml
+  - repo-resource.yaml

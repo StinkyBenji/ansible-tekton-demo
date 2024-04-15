@@ -21,7 +21,6 @@ repos:
     rev: v8.16.1
     hooks:
       - id: gitleaks
-      - id: gitleaks-docker
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.16
