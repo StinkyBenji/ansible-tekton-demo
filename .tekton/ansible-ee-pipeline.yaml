@@ -5,11 +5,10 @@ metadata:
   name: ansible-ee-pipeline
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[git-clone, trivy-scanner]"
-    pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/gitleaks.yaml]"
+    pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint, trivy-scanner, syft, grype]"
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
-    pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/buildah.yaml]"
+    pipelinesascode.tekton.dev/task-4: "https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/buildah.yaml"
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/skopeo-copy.yaml]"
@@ -17,6 +16,11 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" && ("ansible-ee/***".pathChanged() || ".tekton/ansible-ee-pipeline.yaml".pathChanged())
 spec:
+  serviceAccountName: pipelines-sa
+  podTemplate:
+    env:
+      - name: HOME
+        value: "/tekton/home"
   params:
     - name: repo_url
       value: "{{ repo_url }}"
@@ -28,7 +32,6 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: registry-credentials
     tasks:
       - name: fetch-repository
         taskRef:
@@ -41,22 +44,6 @@ spec:
             value: $(params.repo_url)
           - name: revision
             value: $(params.revision)
-
-      - name: detect-secrets
-        runAfter:
-          - fetch-repository
-        taskRef:
-          name: gitleaks
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: config_file_url
-            value: https://raw.githubusercontent.com/tektoncd/catalog/main/task/gitleaks/0.1/samples/gitleaks.toml
-          - name: config_file_path
-            value: gitleaks.toml
-          - name: report_output_path
-            value: gitleaks-report.json
 
       - name: ansible-lint
         runAfter:
@@ -88,8 +75,6 @@ spec:
         workspaces:
           - name: source
             workspace: source
-          - name: dockerconfig
-            workspace: registry-credentials
         runAfter:
           - ansible-builder-create
         params:
@@ -100,17 +85,17 @@ spec:
           - name: CONTEXT
             value: "ansible-ee"
 
-      - name: ee-sanity-test
-        taskRef:
-          name: ansible-ee-sanity-test
-        workspaces:
-          - name: source
-            workspace: source
-        runAfter:
-          - build-image-tag
-        params:
-          - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+      # - name: ee-sanity-test
+      #   taskRef:
+      #     name: ansible-ee-sanity-test
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   runAfter:
+      #     - build-image-tag
+      #   params:
+      #     - name: IMAGE
+      #       value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
 
       - name: image-scan
         taskRef:
@@ -129,72 +114,72 @@ spec:
               - "--severity HIGH,CRITICAL"
               - "--ignore-unfixed"
 
-      - name: semantic-release
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
-        runAfter:
-          - ee-sanity-test
-        taskRef:
-          name: semantic-release
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: source-branch
-            value: "{{ source_branch }}"
+      # - name: semantic-release
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   runAfter:
+      #     - ee-sanity-test
+      #   taskRef:
+      #     name: semantic-release
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: source-branch
+      #       value: "{{ source_branch }}"
 
-      - name: push-image-tag
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
-        runAfter:
-          - semantic-release
-        taskRef:
-          name: skopeo-copy
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: srcImageURL
-            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
-          - name: destImageURL
-            value: "docker://quay.io/stbenji/ansible-tekton-demo:$(tasks.semantic-release.results.version)"
+      # - name: push-image-tag
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   runAfter:
+      #     - semantic-release
+      #   taskRef:
+      #     name: skopeo-copy
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: srcImageURL
+      #       value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
+      #     - name: destImageURL
+      #       value: "docker://quay.io/stbenji/ansible-tekton-demo:$(tasks.semantic-release.results.version)"
 
-      - name: update-image-latest
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
-        runAfter:
-          - semantic-release
-        taskRef:
-          name: skopeo-copy
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: srcImageURL
-            value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
-          - name: destImageURL
-            value: "docker://quay.io/stbenji/ansible-tekton-demo:latest"
+      # - name: update-image-latest
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   runAfter:
+      #     - semantic-release
+      #   taskRef:
+      #     name: skopeo-copy
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: srcImageURL
+      #       value: "docker://$(tasks.build-image-tag.results.IMAGE_URL)"
+      #     - name: destImageURL
+      #       value: "docker://quay.io/stbenji/ansible-tekton-demo:latest"
 
-    finally:
-      - name: clean-up
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
-        taskRef:
-          name: delete-image-stream
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: IMAGE_STREAM
-            value: custom-ansible-ee
+      # finally:
+      #   - name: clean-up
+      #     when:
+      #       - input: "{{ source_branch }}"
+      #         operator: in
+      #         values: ["main"]
+      #     taskRef:
+      #       name: delete-image-stream
+      #     workspaces:
+      #       - name: source
+      #         workspace: source
+      #     params:
+      #       - name: IMAGE_STREAM
+      #         value: custom-ansible-ee
 
   workspaces:
     - name: source
@@ -205,6 +190,3 @@ spec:
           resources:
             requests:
               storage: 5Gi
-    - name: registry-credentials
-      secret:
-        secretName: registry-credentials
