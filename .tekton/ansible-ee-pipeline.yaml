@@ -9,7 +9,6 @@ metadata:
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/ansible-lint.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/ansible-builder-create.yaml]"
     pipelinesascode.tekton.dev/task-4: "https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/buildah.yaml"
-    pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/ansible-ee-sanity-test.yaml]"
     pipelinesascode.tekton.dev/task-6: "[.tekton/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/task-7: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/task-8: "[.tekton/tasks/delete-image-stream.yaml]"
@@ -81,21 +80,9 @@ spec:
           - name: TLSVERIFY
             value: "false"
           - name: IMAGE
-            value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
+            value: image-registry.openshift-image-registry.svc:5000/image-build/custom-ansible-ee
           - name: CONTEXT
             value: "ansible-ee"
-
-      # - name: ee-sanity-test
-      #   taskRef:
-      #     name: ansible-ee-sanity-test
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   runAfter:
-      #     - build-image-tag
-      #   params:
-      #     - name: IMAGE
-      #       value: image-registry.openshift-image-registry.svc:5000/ansible-tekton-demo/custom-ansible-ee
 
       - name: image-scan
         taskRef:
