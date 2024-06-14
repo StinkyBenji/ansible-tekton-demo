@@ -61,7 +61,7 @@ spec:
         fi
 
     - name: detect-secret
-      image: docker.io/zricethezav/gitleaks:v8.18.0@sha256:e5f6d1a62786affd1abd882ecc73e9353ce78adea1650711f6e351767723712d
+      image: docker.io/zricethezav/gitleaks:v8.18.4@sha256:75bdb2b2f4db213cde0b8295f13a88d6b333091bbfbf3012a4e083d00d31caba
       workingDir: $(workspaces.source.path)
       securityContext:
         runAsNonRoot: true
