@@ -44,7 +44,7 @@ spec:
       default: []
   steps:
     - name: fetch-config-file
-      image: registry.access.redhat.com/ubi8/ubi-minimal:8.8-1072.1697626218
+      image: registry.access.redhat.com/ubi8/ubi-minimal:8.10-896.1717584414
       workingDir: $(workspaces.source.path)
       securityContext:
         runAsNonRoot: true
